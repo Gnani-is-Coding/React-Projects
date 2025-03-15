@@ -1,14 +1,14 @@
-import PaymentsLayout from '@/components/Payments-landing-page/Layout'
-import React from 'react'
+import { useRouter } from 'next/router'
+import { useEffect } from 'react'
 
 function PaymentLandingPage() {
-  return (
-    <div>
-      <PaymentsLayout>
-        <h1>Payment Landing Page</h1>
-      </PaymentsLayout>
-    </div>
-  )
+  const router  = useRouter()
+
+  useEffect(() => {
+    router.replace('/payment-landing-page/features')
+  }, [])
+
+  return null
 }
 
 export default PaymentLandingPage

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { Heading } from '.'
+import { error } from 'console'
 
 
 const Form = styled.form`
@@ -46,20 +47,26 @@ const InputContainer = styled.div`
     align-items: center;
     gap: 1rem;
     width: 100%;
+
+    .error {
+        border: 1px solid red;
+    }
 `
 
 type IOTPInputProps = {
     value: number,
     handleOnchange: (i: number, e: React.ChangeEvent<HTMLInputElement>) => void,
+    handleBackspace: (i: number, e: React.ChangeEvent<HTMLInputElement>) => void,
     currentindex: number,
     refArrays: React.MutableRefObject<HTMLInputElement>[],
     index: number
 }
 
-const OTPInput = ({ index,refArrays,value, handleOnchange}: IOTPInputProps) => {
+const OTPInput = ({ index,refArrays,value, handleOnchange, handleBackspace}: IOTPInputProps) => {
     return(
         <DigitContainer ref={(ref) => (refArrays.current[index] = ref)} id={`input-${index}`}  type="text" value={value} 
         maxLength={1}
+        onKeyDown={(e) => handleBackspace(index,e)}
         onChange={(e) => handleOnchange(index,e)}/>
     )
 }
@@ -70,6 +77,8 @@ const OTPInput = ({ index,refArrays,value, handleOnchange}: IOTPInputProps) => {
 When i enter in first box, the focus should go to next box, when input value.length > 0
 should handle edge cases.
 */
+const CORRECT_OTP = "1231"
+
 function OTPForm({noOfDigits = 4}: {noOfDigits?: number}) {
     const [inputOtp, setInputOtp] = useState<string[]>(new Array(noOfDigits).fill(""))
     const [isError, sertError] = useState<boolean>(false)
@@ -77,14 +86,29 @@ function OTPForm({noOfDigits = 4}: {noOfDigits?: number}) {
     const inputRefs = useRef<HTMLInputElement[]>(new Array(noOfDigits).fill(null))
 
     useEffect(() => {
-        console.log("effect triggered")
-
-    }, [inputRefs])
+        if(isError) {
+            inputRefs.current.map(ref => {
+                ref.classList.add("error")
+            })
+        } else {
+            inputRefs.current.map(ref => {
+                ref.classList.remove("error")
+            })
+        }
+    }, [isError])
     //Implement logic to paste OTP.
 
     //Validate OTP
     const validateOTP = (e: React.FormEvent) => {
         e.preventDefault()
+
+        if(inputOtp.join("") === CORRECT_OTP) {
+            setValidOtp(true)
+            sertError(false)
+        } else {
+            setValidOtp(false)
+            sertError(true)
+        }
     }
 
     const shiftFocus = (index: number) => {
@@ -93,6 +117,7 @@ function OTPForm({noOfDigits = 4}: {noOfDigits?: number}) {
 
     const handleOnchange = (currentIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
        const {value} = e.target 
+       sertError(false)
 
        if(value.length >= 1) {
             shiftFocus(currentIndex + 1)
@@ -101,14 +126,17 @@ function OTPForm({noOfDigits = 4}: {noOfDigits?: number}) {
             updatedInputOtp.splice(currentIndex,1, value)
             setInputOtp(updatedInputOtp)
        }
-       else if(value.length === 0 && currentIndex >= 0) {
-            shiftFocus(currentIndex - 1)
-            const updatedArray = [...inputOtp]
-            updatedArray[currentIndex] = ''
-            setInputOtp(updatedArray)
-       }
     }
 
+
+    const handleBackspace = (currentIndex: number,e) => {
+        if(e.key === "Backspace" && currentIndex >= 0) {
+                shiftFocus(currentIndex - 1)
+                    const updatedArray = [...inputOtp]
+                    updatedArray[currentIndex] = ''
+                    setInputOtp(updatedArray)
+               }
+    }
 
   return (
     <>
@@ -120,11 +148,12 @@ function OTPForm({noOfDigits = 4}: {noOfDigits?: number}) {
     <Form onSubmit={validateOTP}>
     <InputContainer>
       {inputOtp.map((digit, index) => (
-        <OTPInput index={index} value={digit} key={index} currentindex={index} handleOnchange={handleOnchange} refArrays={inputRefs}/>
+        <OTPInput index={index} handleBackspace={handleBackspace} value={digit} key={index} currentindex={index} handleOnchange={handleOnchange} refArrays={inputRefs}/>
       ))}
       </InputContainer>
 
       <Button type="submit">Verify OTP</Button>
+      {isError && <p>Invalid OTP</p> }
     </Form>
     }
     </>

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 import { Heading } from '.'
-import { error } from 'console'
 
 
 const Form = styled.form`
@@ -56,7 +55,7 @@ const InputContainer = styled.div`
 type IOTPInputProps = {
     value: number,
     handleOnchange: (i: number, e: React.ChangeEvent<HTMLInputElement>) => void,
-    handleBackspace: (i: number, e: React.ChangeEvent<HTMLInputElement>) => void,
+    handleBackspace: (i: number, e: React.KeyboardEvent<HTMLInputElement>) => void,
     currentindex: number,
     refArrays: React.MutableRefObject<HTMLInputElement>[],
     index: number
@@ -84,6 +83,10 @@ function OTPForm({noOfDigits = 4}: {noOfDigits?: number}) {
     const [isError, sertError] = useState<boolean>(false)
     const [isValidOTp, setValidOtp] = useState<boolean>(false)
     const inputRefs = useRef<HTMLInputElement[]>(new Array(noOfDigits).fill(null))
+
+    useEffect(() => {
+        shiftFocus(0)
+    }, [])
 
     useEffect(() => {
         if(isError) {
@@ -144,7 +147,7 @@ function OTPForm({noOfDigits = 4}: {noOfDigits?: number}) {
     }
 
 
-    const handleBackspace = (currentIndex: number,e) => {
+    const handleBackspace = (currentIndex: number,e: React.KeyboardEvent<HTMLInputElement>) => {
         if(e.key === "Backspace" && currentIndex >= 0) {
                 shiftFocus(currentIndex - 1)
                     const updatedArray = [...inputOtp]

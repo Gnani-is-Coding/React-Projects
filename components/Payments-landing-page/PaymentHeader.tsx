@@ -53,7 +53,7 @@ const Wrapper = styled.div<{isNavOptionsOpen: boolean}>`
     transition: background-color 0.25s ease-in-out;
 `
 
-const NavItems = styled.ul`
+export const NavItems = styled.ul`
     display: none;
     gap: 2rem;
     align-items:center;
@@ -62,7 +62,7 @@ const NavItems = styled.ul`
     }
 `
 
-const NavItem = styled.li`
+export const NavItem = styled.li`
 
     &:hover {
         background-color: #2B2D3D;

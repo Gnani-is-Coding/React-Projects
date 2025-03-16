@@ -1,3 +1,4 @@
+import { NavItem, NavItems } from "@/components/Payments-landing-page/PaymentHeader";
 import Head from "next/head";
 import Link from "next/link";
 
@@ -5,7 +6,13 @@ const AvailableRoutes = [{
   id: 0,
   projectTitle: "Payments Landing Page",
   path: "/payment-landing-page"
-}]
+},
+{
+  id: 1,
+  projectTitle: "OTP Component",
+  path: "/otp-component"
+},
+]
 
 export default function Home() {
   return (
@@ -18,13 +25,15 @@ export default function Home() {
       </Head>
     <div>
       <h1>Available Routes</h1>
-      <ul>
+      <NavItems>
         {AvailableRoutes.map((route) => (
+          <NavItem key={route.id}>
           <Link key={route.id} href={route.path}>
             {route.projectTitle}
           </Link>
+          </NavItem>
         ))}
-      </ul>
+      </NavItems>
     </div>
     </>
   );

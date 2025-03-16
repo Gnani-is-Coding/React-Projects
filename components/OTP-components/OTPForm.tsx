@@ -97,6 +97,21 @@ function OTPForm({noOfDigits = 4}: {noOfDigits?: number}) {
         }
     }, [isError])
     //Implement logic to paste OTP.
+    useEffect(() => {
+        function handlePaste() {
+            navigator.clipboard.readText().then((text) => {
+                const otp = text.split("") 
+                setInputOtp(otp)
+                shiftFocus(otp.length-1)
+            })
+        }
+
+        document.addEventListener("paste", handlePaste)
+
+        return () => {
+            document.removeEventListener("paste", handlePaste)
+        }
+    }, [])
 
     //Validate OTP
     const validateOTP = (e: React.FormEvent) => {

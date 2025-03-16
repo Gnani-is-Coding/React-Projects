@@ -33,7 +33,7 @@ const Wrapper = styled.div`
     }
 `
 
-const Heading = styled.h1`
+export const Heading = styled.h1`
     color: #B1B9D8;
     font-size: 1.5rem;
 `

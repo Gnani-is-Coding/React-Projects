@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
+import { Heading } from '.'
 
 
 const Form = styled.form`
@@ -48,27 +49,85 @@ const InputContainer = styled.div`
 `
 
 type IOTPInputProps = {
-    value: number
+    value: number,
+    handleOnchange: (i: number, e: React.ChangeEvent<HTMLInputElement>) => void,
+    currentindex: number,
+    refArrays: React.MutableRefObject<HTMLInputElement>[],
+    index: number
 }
 
-const OTPInput = ({value}: IOTPInputProps) => {
+const OTPInput = ({ index,refArrays,value, handleOnchange}: IOTPInputProps) => {
     return(
-        <DigitContainer type="text" value={value} />
+        <DigitContainer ref={(ref) => (refArrays.current[index] = ref)} id={`input-${index}`}  type="text" value={value} 
+        maxLength={1}
+        onChange={(e) => handleOnchange(index,e)}/>
     )
 }
 
 
+// Functionality:
+/* 
+When i enter in first box, the focus should go to next box, when input value.length > 0
+should handle edge cases.
+*/
 function OTPForm({noOfDigits = 4}: {noOfDigits?: number}) {
+    const [inputOtp, setInputOtp] = useState<string[]>(new Array(noOfDigits).fill(""))
+    const [isError, sertError] = useState<boolean>(false)
+    const [isValidOTp, setValidOtp] = useState<boolean>(false)
+    const inputRefs = useRef<HTMLInputElement[]>(new Array(noOfDigits).fill(null))
+
+    useEffect(() => {
+        console.log("effect triggered")
+
+    }, [inputRefs])
+    //Implement logic to paste OTP.
+
+    //Validate OTP
+    const validateOTP = (e: React.FormEvent) => {
+        e.preventDefault()
+    }
+
+    const shiftFocus = (index: number) => {
+        inputRefs.current[index]?.focus()
+    }
+
+    const handleOnchange = (currentIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
+       const {value} = e.target 
+
+       if(value.length >= 1) {
+            shiftFocus(currentIndex + 1)
+
+            const updatedInputOtp = [...inputOtp]
+            updatedInputOtp.splice(currentIndex,1, value)
+            setInputOtp(updatedInputOtp)
+       }
+       else if(value.length === 0 && currentIndex >= 0) {
+            shiftFocus(currentIndex - 1)
+            const updatedArray = [...inputOtp]
+            updatedArray[currentIndex] = ''
+            setInputOtp(updatedArray)
+       }
+    }
+
+
   return (
-    <Form>
+    <>
+    {isValidOTp ? (
+        <>
+        <Heading>OTP is valid</Heading>
+        </>
+    ):
+    <Form onSubmit={validateOTP}>
     <InputContainer>
-      {new Array(noOfDigits).fill("").map((digit, index) => (
-        <OTPInput />
+      {inputOtp.map((digit, index) => (
+        <OTPInput index={index} value={digit} key={index} currentindex={index} handleOnchange={handleOnchange} refArrays={inputRefs}/>
       ))}
       </InputContainer>
 
       <Button type="submit">Verify OTP</Button>
     </Form>
+    }
+    </>
   )
 }
 
